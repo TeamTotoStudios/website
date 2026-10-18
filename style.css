@@ -196,3 +196,15 @@ footer {
         padding-bottom: 90px;
     }
 }
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 55px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+}
