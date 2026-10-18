@@ -190,11 +190,12 @@ footer {
 .logo {
     display: inline-flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .logo img {
-    height: 55px;
-    width: auto;
     display: block;
+    width: 150px;
+    height: 55px;
     object-fit: contain;
 }
