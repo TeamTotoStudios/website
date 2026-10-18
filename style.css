@@ -199,3 +199,16 @@ footer {
     height: 55px;
     object-fit: contain;
 }
+
+.doc {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.doc img {
+    display: block;
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+}
