@@ -81,7 +81,7 @@ input::placeholder, textarea::placeholder { color: #68758b; }
 .card-label { color: var(--accent) !important; font-size: .7rem; font-weight: 800; letter-spacing: .12em; margin-bottom: 9px; }
 .project-card h3 { margin-bottom: 10px; }
 .about-section { background: radial-gradient(ellipse at 50% 0%, rgba(139,92,246,.12), transparent 55%), var(--surface); text-align: center; }
-.about-content { max-width: 760px; }
+.about-content { max-width: 1200px; }
 .about-content h2 { margin-bottom: 22px; }
 .about-content > p:not(.eyebrow) { max-width: 690px; margin: 0 auto 26px; color: var(--muted); }
 
