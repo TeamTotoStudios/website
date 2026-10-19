@@ -55,37 +55,52 @@
             </div>
             <span class="admin-badge">ADMIN</span>
           </div>
-          <form id="event-form" class="event-form">
-  <label>
-    Event name
-    <input name="title" required>
-  </label>
-            <div class="event-form-row event-date-row">
-  <label>
-    Start date
-    <input name="event_date" type="date" required>
-  </label>
-  <label>
-    End date
-    <input name="end_date" type="date" required>
-  </label>
-</div>
+         <form id="event-form" class="event-form">
 
-<div class="event-form-row event-links-row">
-  <label>
-    Details link
-    <input name="event_url" type="url" required>
-  </label>
-  <label>
-    Twitch link (optional)
-    <input name="twitch_url" type="url">
-  </label>
-  <label>
-    Discord link (optional)
-    <input name="discord_url" type="url">
-  </label>
-</div>
-          </form>
+  <!-- Event name -->
+  <div class="event-form-row event-main-row">
+    <label>
+      Event name
+      <input name="title" type="text" required maxlength="100" placeholder="e.g. 2v2 Community Cup">
+    </label>
+  </div>
+
+  <!-- Start and end dates -->
+  <div class="event-form-row event-date-row">
+    <label>
+      Start date
+      <input name="event_date" type="date" required>
+    </label>
+
+    <label>
+      End date
+      <input name="end_date" type="date" required>
+    </label>
+  </div>
+
+  <!-- Event links -->
+  <div class="event-form-row event-links-row">
+    <label>
+      Details link
+      <input name="event_url" type="url" required placeholder="https://example.com/event">
+    </label>
+
+    <label>
+      Twitch link (optional)
+      <input name="twitch_url" type="url" placeholder="https://twitch.tv/yourchannel">
+    </label>
+
+    <label>
+      Discord link (optional)
+      <input name="discord_url" type="url" placeholder="https://discord.gg/yourinvite">
+    </label>
+  </div>
+
+  <!-- Submit button and status -->
+  <button class="button button-primary" type="submit">Publish event</button>
+  <p id="event-form-status" class="form-message" role="status"></p>
+
+</form>
         </div>
       </div>
     </section>
