@@ -104,8 +104,7 @@ async function refreshAccount(user) {
 $('#auth-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!supabaseClient) return;
-  const form = event.currentTarget;
-  const formData = new FormData(form);
+  const formData = new FormData(event.currentTarget);
   const email = String(formData.get('email') || '').trim();
   const password = String(formData.get('password') || '');
   const submitButton = $('#auth-submit');
@@ -128,7 +127,7 @@ $('#auth-form').addEventListener('submit', async (event) => {
       await refreshAccount(data.user);
       setMessage($('#auth-status'), 'You are now logged in.', 'success');
     }
-    form.reset();
+    event.currentTarget.reset();
   } catch (error) {
     setMessage($('#auth-status'), error.message || 'Authentication failed. Please try again.', 'error');
   } finally {
@@ -165,6 +164,18 @@ function formatEventDate(value) {
   }).format(date);
 }
 
+function addEventLink(container, label, value) {
+  const linkUrl = safeHttpUrl(String(value || '').trim());
+  if (!linkUrl) return;
+  const link = document.createElement('a');
+  link.className = 'event-link';
+  link.href = linkUrl;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = `${label} ↗`;
+  container.append(link);
+}
+
 function renderEvents(events) {
   const list = $('#events-list');
   list.replaceChildren();
@@ -181,18 +192,13 @@ function renderEvents(events) {
     const title = document.createElement('h3');
     title.textContent = item.title;
     const description = document.createElement('p');
-    description.textContent = item.description || 'More details are available through the event link.';
-    const linkUrl = safeHttpUrl(item.event_url);
-    card.append(date, title, description);
-    if (linkUrl) {
-      const link = document.createElement('a');
-      link.className = 'event-link';
-      link.href = linkUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = 'Event details ↗';
-      card.append(link);
-    }
+    description.textContent = item.description || 'More details are available through the event links.';
+    const links = document.createElement('div');
+    links.className = 'event-links';
+    addEventLink(links, 'Event details', item.event_url);
+    addEventLink(links, 'Twitch', item.twitch_url);
+    addEventLink(links, 'Discord', item.discord_url);
+    card.append(date, title, description, links);
     list.append(card);
   }
 }
@@ -202,7 +208,7 @@ async function loadEvents() {
   setMessage($('#events-status'), 'Loading events…');
   const { data, error } = await supabaseClient
     .from('events')
-    .select('id, title, description, event_date, event_url')
+    .select('id, title, description, event_date, event_url, twitch_url, discord_url')
     .order('event_date', { ascending: true });
   if (error) {
     console.error('Could not load events:', error.message);
@@ -222,10 +228,18 @@ $('#event-form').addEventListener('submit', async (event) => {
   const title = String(values.get('title') || '').trim();
   const description = String(values.get('description') || '').trim();
   const eventUrl = safeHttpUrl(String(values.get('event_url') || '').trim());
+  const twitchValue = String(values.get('twitch_url') || '').trim();
+  const discordValue = String(values.get('discord_url') || '').trim();
+  const twitchUrl = twitchValue ? safeHttpUrl(twitchValue) : null;
+  const discordUrl = discordValue ? safeHttpUrl(discordValue) : null;
   const dateValue = String(values.get('event_date') || '');
   const eventDate = new Date(dateValue);
   if (!eventUrl) {
-    setMessage($('#event-form-status'), 'Enter a valid http:// or https:// event link.', 'error');
+    setMessage($('#event-form-status'), 'Enter a valid http:// or https:// event details link.', 'error');
+    return;
+  }
+  if ((twitchValue && !twitchUrl) || (discordValue && !discordUrl)) {
+    setMessage($('#event-form-status'), 'Twitch and Discord links must be valid http:// or https:// URLs.', 'error');
     return;
   }
   if (Number.isNaN(eventDate.getTime())) {
@@ -240,12 +254,14 @@ $('#event-form').addEventListener('submit', async (event) => {
     description,
     event_date: eventDate.toISOString(),
     event_url: eventUrl,
+    twitch_url: twitchUrl,
+    discord_url: discordUrl,
     created_by: currentUser.id
   });
   submitButton.disabled = false;
   if (error) {
     console.error('Could not publish event:', error.message);
-    setMessage($('#event-form-status'), 'Could not publish. Check that your account has admin privileges and the database policies are installed.', 'error');
+    setMessage($('#event-form-status'), 'Could not publish. Check admin permissions and run the Twitch/Discord column update in Supabase if you have not already.', 'error');
     return;
   }
   form.reset();
