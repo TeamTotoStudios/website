@@ -56,14 +56,31 @@
             <span class="admin-badge">ADMIN</span>
           </div>
           <form id="event-form" class="event-form">
-            <label>Event name<input name="title" required maxlength="100" placeholder="e.g. 2v2 Community Cup"></label>
-            <label>Start date<input name="event_date" type="date" required></label>
-            <label>End date<input name="end_date" type="date" required></label>
-            <label>Event details link<input name="event_url" type="url" required placeholder="https://example.com/event"></label>
-            <label>Twitch link (optional)<input name="twitch_url" type="url" placeholder="https://twitch.tv/yourchannel"></label>
-            <label>Discord link (optional)<input name="discord_url" type="url" placeholder="https://discord.gg/yourinvite"></label>
-            <button class="button button-primary" type="submit">Publish event</button>
-            <p id="event-form-status" class="form-message" role="status"></p>
+            <div class="event-form-row event-date-row">
+  <label>
+    Start date
+    <input name="event_date" type="date" required>
+  </label>
+  <label>
+    End date
+    <input name="end_date" type="date" required>
+  </label>
+</div>
+
+<div class="event-form-row event-links-row">
+  <label>
+    Details link
+    <input name="event_url" type="url" required placeholder="https://example.com/event">
+  </label>
+  <label>
+    Twitch link (optional)
+    <input name="twitch_url" type="url" placeholder="https://twitch.tv/yourchannel">
+  </label>
+  <label>
+    Discord link (optional)
+    <input name="discord_url" type="url" placeholder="https://discord.gg/yourinvite">
+  </label>
+</div>
           </form>
         </div>
       </div>
