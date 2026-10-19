@@ -217,7 +217,6 @@ input::placeholder, textarea::placeholder { color: #68758b; }
   }
 }
 
-/* Arrange event form fields in rows */
 .event-form {
   display: flex;
   flex-direction: column;
@@ -228,6 +227,10 @@ input::placeholder, textarea::placeholder { color: #68758b; }
   display: grid;
   gap: 16px;
   align-items: start;
+}
+
+.event-main-row {
+  grid-template-columns: 1fr;
 }
 
 .event-date-row {
@@ -242,7 +245,6 @@ input::placeholder, textarea::placeholder { color: #68758b; }
   min-width: 0;
 }
 
-/* Stack fields on smaller screens */
 @media (max-width: 700px) {
   .event-links-row {
     grid-template-columns: 1fr;
