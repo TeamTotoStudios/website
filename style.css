@@ -216,3 +216,41 @@ input::placeholder, textarea::placeholder { color: #68758b; }
     background-attachment: scroll;
   }
 }
+
+/* Arrange event form fields in rows */
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.event-form-row {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+
+.event-date-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.event-links-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.event-form-row label {
+  min-width: 0;
+}
+
+/* Stack fields on smaller screens */
+@media (max-width: 700px) {
+  .event-links-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-date-row {
+    grid-template-columns: 1fr;
+  }
+}
