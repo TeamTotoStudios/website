@@ -58,6 +58,12 @@
           <form id="event-form" class="event-form">
             <div class="event-form-row event-date-row">
   <label>
+    Event name
+    <input name="title" required>
+  </label>
+            </div>
+            <div class="event-form-row event-date-row">
+  <label>
     Start date
     <input name="event_date" type="date" required>
   </label>
@@ -70,15 +76,15 @@
 <div class="event-form-row event-links-row">
   <label>
     Details link
-    <input name="event_url" type="url" required placeholder="https://example.com/event">
+    <input name="event_url" type="url" required>
   </label>
   <label>
     Twitch link (optional)
-    <input name="twitch_url" type="url" placeholder="https://twitch.tv/yourchannel">
+    <input name="twitch_url" type="url">
   </label>
   <label>
     Discord link (optional)
-    <input name="discord_url" type="url" placeholder="https://discord.gg/yourinvite">
+    <input name="discord_url" type="url">
   </label>
 </div>
           </form>
