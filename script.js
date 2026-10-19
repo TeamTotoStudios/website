@@ -73,7 +73,7 @@ function renderAccount(user, role = 'member') {
     $('#account-email').textContent = user.email || 'Signed-in account';
     $('#account-role').textContent = currentRole === 'admin' ? 'Administrator' : 'Member account';
     $('#admin-hint').textContent = currentRole === 'admin'
-      ? 'Admin access is enabled. You can publish events in the Calendar section.'
+      ? 'Admin access is enabled. You can publish and delete events in the Calendar section.'
       : 'Your account is a member account. Only an administrator can grant admin privileges.';
   }
 }
@@ -95,10 +95,12 @@ async function loadRole(user) {
 async function refreshAccount(user) {
   if (!user) {
     renderAccount(null);
+    await loadEvents();
     return;
   }
   const role = await loadRole(user);
   renderAccount(user, role);
+  await loadEvents();
 }
 
 $('#auth-form').addEventListener('submit', async (event) => {
@@ -143,6 +145,7 @@ $('#logout-button').addEventListener('click', async () => {
     return;
   }
   renderAccount(null);
+  await loadEvents();
   setMessage($('#logout-status'), 'You have logged out.', 'success');
 });
 
@@ -156,12 +159,20 @@ function safeHttpUrl(value) {
 }
 
 function formatEventDate(value) {
-  const date = new Date(value);
+  if (!value) return 'Date to be announced';
+  const datePart = String(value).slice(0, 10);
+  const date = new Date(`${datePart}T00:00:00.000Z`);
   if (Number.isNaN(date.getTime())) return 'Date to be announced';
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
-    timeStyle: 'short'
+    timeZone: 'UTC'
   }).format(date);
+}
+
+function formatEventDateRange(startValue, endValue) {
+  const start = formatEventDate(startValue);
+  if (!endValue || String(endValue).slice(0, 10) === String(startValue || '').slice(0, 10)) return start;
+  return `${start} – ${formatEventDate(endValue)}`;
 }
 
 function addEventLink(container, label, value) {
@@ -188,19 +199,45 @@ function renderEvents(events) {
     card.className = 'event-card';
     const date = document.createElement('p');
     date.className = 'event-date';
-    date.textContent = formatEventDate(item.event_date);
+    date.textContent = formatEventDateRange(item.event_date, item.end_date);
     const title = document.createElement('h3');
     title.textContent = item.title;
-    const description = document.createElement('p');
-    description.textContent = item.description || 'More details are available through the event links.';
     const links = document.createElement('div');
     links.className = 'event-links';
     addEventLink(links, 'Event details', item.event_url);
     addEventLink(links, 'Twitch', item.twitch_url);
     addEventLink(links, 'Discord', item.discord_url);
-    card.append(date, title, description, links);
+
+    if (currentRole === 'admin') {
+      const deleteButton = document.createElement('button');
+      deleteButton.className = 'event-delete-button';
+      deleteButton.type = 'button';
+      deleteButton.textContent = 'Delete event';
+      deleteButton.setAttribute('aria-label', `Delete event: ${item.title}`);
+      deleteButton.addEventListener('click', () => deleteEvent(item.id, item.title, deleteButton));
+      links.append(deleteButton);
+    }
+
+    card.append(date, title, links);
     list.append(card);
   }
+}
+
+async function deleteEvent(eventId, title, button) {
+  if (!supabaseClient || !currentUser || currentRole !== 'admin') return;
+  if (!window.confirm(`Delete “${title}”? This cannot be undone.`)) return;
+
+  button.disabled = true;
+  button.textContent = 'Deleting…';
+  const { error } = await supabaseClient.from('events').delete().eq('id', eventId);
+  if (error) {
+    console.error('Could not delete event:', error.message);
+    setMessage($('#events-status'), 'Could not delete event. Check admin permissions and database policies.', 'error');
+    button.disabled = false;
+    button.textContent = 'Delete event';
+    return;
+  }
+  await loadEvents();
 }
 
 async function loadEvents() {
@@ -208,7 +245,7 @@ async function loadEvents() {
   setMessage($('#events-status'), 'Loading events…');
   const { data, error } = await supabaseClient
     .from('events')
-    .select('id, title, description, event_date, event_url, twitch_url, discord_url')
+    .select('id, title, event_date, end_date, event_url, twitch_url, discord_url')
     .order('event_date', { ascending: true });
   if (error) {
     console.error('Could not load events:', error.message);
@@ -226,14 +263,13 @@ $('#event-form').addEventListener('submit', async (event) => {
   const form = event.currentTarget;
   const values = new FormData(form);
   const title = String(values.get('title') || '').trim();
-  const description = String(values.get('description') || '').trim();
   const eventUrl = safeHttpUrl(String(values.get('event_url') || '').trim());
   const twitchValue = String(values.get('twitch_url') || '').trim();
   const discordValue = String(values.get('discord_url') || '').trim();
   const twitchUrl = twitchValue ? safeHttpUrl(twitchValue) : null;
   const discordUrl = discordValue ? safeHttpUrl(discordValue) : null;
-  const dateValue = String(values.get('event_date') || '');
-  const eventDate = new Date(dateValue);
+  const startDate = String(values.get('event_date') || '');
+  const endDate = String(values.get('end_date') || '');
   if (!eventUrl) {
     setMessage($('#event-form-status'), 'Enter a valid http:// or https:// event details link.', 'error');
     return;
@@ -242,8 +278,12 @@ $('#event-form').addEventListener('submit', async (event) => {
     setMessage($('#event-form-status'), 'Twitch and Discord links must be valid http:// or https:// URLs.', 'error');
     return;
   }
-  if (Number.isNaN(eventDate.getTime())) {
-    setMessage($('#event-form-status'), 'Choose a valid date and time.', 'error');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+    setMessage($('#event-form-status'), 'Choose a valid start date and end date.', 'error');
+    return;
+  }
+  if (endDate < startDate) {
+    setMessage($('#event-form-status'), 'The end date must be on or after the start date.', 'error');
     return;
   }
   const submitButton = form.querySelector('button[type="submit"]');
@@ -251,8 +291,8 @@ $('#event-form').addEventListener('submit', async (event) => {
   setMessage($('#event-form-status'), 'Publishing event…');
   const { error } = await supabaseClient.from('events').insert({
     title,
-    description,
-    event_date: eventDate.toISOString(),
+    event_date: `${startDate}T12:00:00.000Z`,
+    end_date: endDate,
     event_url: eventUrl,
     twitch_url: twitchUrl,
     discord_url: discordUrl,
@@ -261,7 +301,7 @@ $('#event-form').addEventListener('submit', async (event) => {
   submitButton.disabled = false;
   if (error) {
     console.error('Could not publish event:', error.message);
-    setMessage($('#event-form-status'), 'Could not publish. Check admin permissions and run the Twitch/Discord column update in Supabase if you have not already.', 'error');
+    setMessage($('#event-form-status'), 'Could not publish. Check admin permissions and run the event columns update in Supabase if you have not already.', 'error');
     return;
   }
   form.reset();
@@ -275,7 +315,6 @@ async function initialize() {
     renderAccount(null);
     return;
   }
-  await loadEvents();
   const { data: { session } } = await supabaseClient.auth.getSession();
   await refreshAccount(session?.user || null);
   supabaseClient.auth.onAuthStateChange((_event, sessionNow) => {
