@@ -194,3 +194,25 @@ input::placeholder, textarea::placeholder { color: #68758b; }
   .events-list .event-card { grid-template-columns: 1fr; }
   .events-list .event-card .event-links { grid-column: auto; }
 }
+
+.hero {
+  background-image: url("wallpaper.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.hero::before {
+  background: linear-gradient(
+    90deg,
+    rgba(8, 12, 21, 0.75),
+    rgba(8, 12, 21, 0.35)
+  );
+}
+
+@media (max-width: 800px) {
+  .hero {
+    background-attachment: scroll;
+  }
+}
