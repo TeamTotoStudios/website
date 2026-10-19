@@ -231,7 +231,7 @@ titleGroup.append(title);
       links.append(deleteButton);
     }
 
-    card.append(date, title, links);
+    card.append(date, titleGroup, links);
     list.append(card);
   }
 }
@@ -258,7 +258,7 @@ async function loadEvents() {
   setMessage($('#events-status'), 'Loading events…');
   const { data, error } = await supabaseClient
     .from('events')
-    .select('id, title, event_date, end_date, event_url, twitch_url, discord_url')
+    .select('id, title, event_date, end_date, event_url, twitch_url, discord_url, logo_url')
     .order('event_date', { ascending: true });
   if (error) {
     console.error('Could not load events:', error.message);
@@ -283,6 +283,34 @@ $('#event-form').addEventListener('submit', async (event) => {
   const discordUrl = discordValue ? safeHttpUrl(discordValue) : null;
   const startDate = String(values.get('event_date') || '');
   const endDate = String(values.get('end_date') || '');
+  const logoFile = values.get('event_logo');
+
+if (logoFile && logoFile.size > 0) {
+  const allowedTypes = [
+    'image/png',
+    'image/jpeg',
+    'image/webp',
+    'image/gif'
+  ];
+
+  if (!allowedTypes.includes(logoFile.type)) {
+    setMessage(
+      $('#event-form-status'),
+      'Choose a PNG, JPG, WEBP or GIF image.',
+      'error'
+    );
+    return;
+  }
+
+  if (logoFile.size > 3 * 1024 * 1024) {
+    setMessage(
+      $('#event-form-status'),
+      'The event logo must be 3 MB or smaller.',
+      'error'
+    );
+    return;
+  }
+}
   if (!eventUrl) {
     setMessage($('#event-form-status'), 'Enter a valid http:// or https:// event details link.', 'error');
     return;
@@ -302,15 +330,73 @@ $('#event-form').addEventListener('submit', async (event) => {
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   setMessage($('#event-form-status'), 'Publishing event…');
-  const { error } = await supabaseClient.from('events').insert({
-    title,
-    event_date: `${startDate}T12:00:00.000Z`,
-    end_date: endDate,
-    event_url: eventUrl,
-    twitch_url: twitchUrl,
-    discord_url: discordUrl,
-    created_by: currentUser.id
-  });
+  
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  setMessage($('#event-form-status'), 'Publishing event…');
+
+  try {
+    let logoUrl = null;
+
+    if (logoFile && logoFile.size > 0) {
+      setMessage($('#event-form-status'), 'Uploading event logo…');
+
+      const extensionByType = {
+        'image/png': 'png',
+        'image/jpeg': 'jpg',
+        'image/webp': 'webp',
+        'image/gif': 'gif'
+      };
+
+      const extension = extensionByType[logoFile.type];
+      const filePath = `${currentUser.id}/${crypto.randomUUID()}.${extension}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from('event-logos')
+        .upload(filePath, logoFile, {
+          contentType: logoFile.type,
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabaseClient.storage
+        .from('event-logos')
+        .getPublicUrl(filePath);
+
+      logoUrl = publicUrlData.publicUrl;
+    }
+
+    setMessage($('#event-form-status'), 'Saving event…');
+
+    const { error } = await supabaseClient.from('events').insert({
+      title,
+      event_date: `${startDate}T12:00:00.000Z`,
+      end_date: endDate,
+      event_url: eventUrl,
+      twitch_url: twitchUrl,
+      discord_url: discordUrl,
+      logo_url: logoUrl,
+      created_by: currentUser.id
+    });
+
+    if (error) throw error;
+
+    form.reset();
+    setMessage($('#event-form-status'), 'Event published!', 'success');
+    await loadEvents();
+  } catch (error) {
+    console.error('Could not publish event:', error);
+    setMessage(
+      $('#event-form-status'),
+      `Could not publish event: ${error.message || 'Please check your Supabase setup.'}`,
+      'error'
+    );
+  } finally {
+    submitButton.disabled = false;
+  }
+
   submitButton.disabled = false;
   if (error) {
     console.error('Could not publish event:', error.message);
