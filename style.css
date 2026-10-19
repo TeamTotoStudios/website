@@ -287,3 +287,26 @@ input::placeholder, textarea::placeholder { color: #68758b; }
     grid-template-columns: 1fr;
   }
 }
+
+
+.event-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.event-title-group h3 {
+  overflow-wrap: anywhere;
+}
+
+.event-logo {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  object-fit: contain;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  padding: 4px;
+}
