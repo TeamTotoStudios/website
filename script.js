@@ -200,8 +200,21 @@ function renderEvents(events) {
     const date = document.createElement('p');
     date.className = 'event-date';
     date.textContent = formatEventDateRange(item.event_date, item.end_date);
-    const title = document.createElement('h3');
-    title.textContent = item.title;
+   const titleGroup = document.createElement('div');
+titleGroup.className = 'event-title-group';
+
+if (item.logo_url) {
+  const logo = document.createElement('img');
+  logo.className = 'event-logo';
+  logo.src = item.logo_url;
+  logo.alt = `${item.title} logo`;
+  logo.loading = 'lazy';
+  titleGroup.append(logo);
+}
+
+const title = document.createElement('h3');
+title.textContent = item.title;
+titleGroup.append(title);
     const links = document.createElement('div');
     links.className = 'event-links';
     addEventLink(links, 'Details', item.event_url);
