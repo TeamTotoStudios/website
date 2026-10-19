@@ -40,12 +40,12 @@ function setMessage(element, message, type = '') {
 function showConfigurationWarning() {
   setMessage(
     $('#events-status'),
-    'The event calendar and accounts are not connected yet. Follow SETUP.md to connect a Supabase project.'
+    'The event calendar and accounts are not connected yet.'
   );
   $('#events-list').innerHTML = '<div class="empty-events">Events will appear here once the website database is configured.</div>';
-  setMessage($('#auth-status'), 'Account features are not configured yet. Follow SETUP.md to connect Supabase.');
+  setMessage($('#auth-status'), 'Account features are not configured yet.');
   $('#auth-submit').disabled = true;
-  $('#auth-submit').title = 'Connect Supabase first; see SETUP.md';
+  $('#auth-submit').title = 'Connect Supabase first';
 }
 
 function setAuthMode(mode) {
@@ -204,7 +204,7 @@ function renderEvents(events) {
     title.textContent = item.title;
     const links = document.createElement('div');
     links.className = 'event-links';
-    addEventLink(links, 'Event details', item.event_url);
+    addEventLink(links, 'Details', item.event_url);
     addEventLink(links, 'Twitch', item.twitch_url);
     addEventLink(links, 'Discord', item.discord_url);
 
@@ -249,7 +249,7 @@ async function loadEvents() {
     .order('event_date', { ascending: true });
   if (error) {
     console.error('Could not load events:', error.message);
-    setMessage($('#events-status'), 'Could not load events. Check the Supabase setup and database policies.', 'error');
+    setMessage($('#events-status'), 'Could not load events.', 'error');
     $('#events-list').innerHTML = '<div class="empty-events">The calendar is temporarily unavailable.</div>';
     return;
   }
@@ -301,7 +301,7 @@ $('#event-form').addEventListener('submit', async (event) => {
   submitButton.disabled = false;
   if (error) {
     console.error('Could not publish event:', error.message);
-    setMessage($('#event-form-status'), 'Could not publish. Check admin permissions and run the event columns update in Supabase if you have not already.', 'error');
+    setMessage($('#event-form-status'), 'Could not publish. Check admin permissions.', 'error');
     return;
   }
   form.reset();
