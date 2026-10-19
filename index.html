@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TeamToto Studios</title>
+  <meta name="description" content="TeamToto Studios — Rocket League tournaments, community events, and projects.">
+  <title>TeamToto Studios | Rocket League Tournaments</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -31,7 +32,11 @@
     <section class="hero" id="home">
       <div class="container hero-content">
         <p class="eyebrow">TEAMTOTO STUDIOS</p>
-        <h1>THIS IS<br><span>ROCKET LEAGUE.</span></h1>
+        <h1>THIS IS <span>ROCKET LEAGUE.</span></h1>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#calendar">Explore events <span aria-hidden="true">↗</span></a>
+          <a class="button button-secondary" href="#about">Meet the organizer</a>
+        </div>
       </div>
     </section>
 
@@ -55,8 +60,8 @@
           </div>
           <form id="event-form" class="event-form">
             <label>Event name<input name="title" required maxlength="100" placeholder="e.g. 2v2 Community Cup"></label>
-            <label>Date and time<input name="event_date" type="datetime-local" required></label>
-            <label>Short description<textarea name="description" rows="3" maxlength="500" placeholder="Format, rank range, prizes, or other details"></textarea></label>
+            <label>Start date<input name="event_date" type="date" required></label>
+            <label>End date<input name="end_date" type="date" required></label>
             <label>Event details link<input name="event_url" type="url" required placeholder="https://example.com/event"></label>
             <label>Twitch link (optional)<input name="twitch_url" type="url" placeholder="https://twitch.tv/yourchannel"></label>
             <label>Discord link (optional)<input name="discord_url" type="url" placeholder="https://discord.gg/yourinvite"></label>
@@ -81,9 +86,10 @@
 
     <section class="section about-section" id="about">
       <div class="container about-content">
-        <p class="eyebrow">ABOUT US</p>
-        <h2>Creating,<br><span>exploring,</span><br>and more.</h2>
-        <p class="coming-soon">Coming soon.</p>
+        <p class="eyebrow">ABOUT THE ORGANIZER</p>
+        <h2>More than a match.<br><span>It's a community.</span></h2>
+        <p>TeamToto Studios brings Rocket League players together through tournaments, community events, and shared competitive moments. Check the calendar for the next event and follow its link for registration or viewing details.</p>
+        <a class="button button-secondary" href="#calendar">See upcoming events</a>
       </div>
     </section>
 
@@ -92,8 +98,8 @@
         <div class="account-copy">
           <p class="eyebrow">YOUR COMMUNITY HUB</p>
           <h2>Sign in to <span>TeamToto</span></h2>
-          <p>Create an account or log in to access your account.</p>
-          <p class="small-note">Use a unique password. Email confirmation is enabled, confirm your email before logging in.</p>
+          <p>Create an account or log in to access your account. Admin accounts can publish events to the calendar.</p>
+          <p class="small-note">Use a unique password. If email confirmation is enabled in the authentication settings, confirm your email before logging in.</p>
         </div>
         <div class="account-card">
           <div id="account-signed-out">
@@ -123,7 +129,8 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>TeamToto Studios © <span id="year"></span></p>
+      <div class="footer-brand"><img src="logo.png" alt="TeamToto Studios logo"></div>
+      <p>© <span id="year"></span> TeamToto Studios. Community tournaments, good games.</p>
       <a href="#home">Back to top ↑</a>
     </div>
   </footer>
