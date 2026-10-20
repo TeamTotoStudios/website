@@ -22,6 +22,8 @@ function setMessage(element, message, type = '') {
 function showConfigurationWarning() {
   setMessage($('#events-status'), 'The event calendar and accounts are not connected yet.');
   $('#events-list').innerHTML = '<div class="empty-events">Events will appear here once the website database is configured.</div>';
+  setMessage($('#archive-status'), 'The event archive is not connected yet.');
+  $('#archive-list').innerHTML = '<div class="empty-events">Archived events will appear here once the website database is configured.</div>';
   setMessage($('#auth-status'), 'Account features are not configured yet.');
   $('#auth-submit').disabled = true;
   $('#auth-submit').title = 'Connect Supabase first';
@@ -45,6 +47,7 @@ function renderAccount(user, role = 'member') {
   $('#account-signed-out').classList.toggle('hidden', Boolean(user));
   $('#account-signed-in').classList.toggle('hidden', !user);
   $('#admin-event-panel').classList.toggle('hidden', !user || currentRole !== 'admin');
+  $('#admin-archive-panel').classList.toggle('hidden', !user || currentRole !== 'admin');
   if (user) {
     $('#account-email').textContent = user.email || 'Signed-in account';
     $('#account-role').textContent = currentRole === 'admin' ? 'Administrator' : 'Member account';
@@ -118,16 +121,43 @@ function addEventLink(container, label, value) {
 function renderEvents(events) {
   const list = $('#events-list');
   list.replaceChildren();
-  if (!events?.length) { list.innerHTML = '<div class="empty-events">No events have been announced yet. Check back soon!</div>'; return; }
+  if (!events?.length) {
+    list.innerHTML = '<div class="empty-events">No upcoming events have been announced yet. Check back soon!</div>';
+    return;
+  }
   for (const item of events) {
     const card = document.createElement('article'); card.className = 'event-card';
     const date = document.createElement('p'); date.className = 'event-date'; date.textContent = formatEventDateRange(item.event_date, item.end_date);
     const title = document.createElement('h3'); title.textContent = item.title;
     const links = document.createElement('div'); links.className = 'event-links';
-    addEventLink(links, 'Details', item.event_url); addEventLink(links, 'Twitch', item.twitch_url); addEventLink(links, 'Discord', item.discord_url);
+    addEventLink(links, 'Details', item.event_url);
+    addEventLink(links, 'Twitch', item.twitch_url);
+    addEventLink(links, 'Discord', item.discord_url);
     if (currentRole === 'admin') {
       const button = document.createElement('button'); button.className = 'event-delete-button'; button.type = 'button'; button.textContent = 'Delete event';
       button.setAttribute('aria-label', `Delete event: ${item.title}`);
+      button.addEventListener('click', () => deleteEvent(item.id, item.title, button)); links.append(button);
+    }
+    card.append(date, title, links); list.append(card);
+  }
+}
+function renderArchive(events) {
+  const list = $('#archive-list');
+  list.replaceChildren();
+  if (!events?.length) {
+    list.innerHTML = '<div class="empty-events">No previous events yet. Completed events will appear here.</div>';
+    return;
+  }
+  for (const item of events) {
+    const card = document.createElement('article'); card.className = 'archive-card';
+    const date = document.createElement('p'); date.className = 'event-date'; date.textContent = formatEventDateRange(item.event_date, item.end_date);
+    const title = document.createElement('h3'); title.textContent = item.title;
+    const links = document.createElement('div'); links.className = 'event-links';
+    addEventLink(links, 'Details', item.event_url);
+    addEventLink(links, 'YouTube', item.youtube_url);
+    if (currentRole === 'admin') {
+      const button = document.createElement('button'); button.className = 'event-delete-button'; button.type = 'button'; button.textContent = 'Delete';
+      button.setAttribute('aria-label', `Delete archived event: ${item.title}`);
       button.addEventListener('click', () => deleteEvent(item.id, item.title, button)); links.append(button);
     }
     card.append(date, title, links); list.append(card);
@@ -147,36 +177,74 @@ async function deleteEvent(id, title, button) {
 async function loadEvents() {
   if (!supabaseClient) return;
   setMessage($('#events-status'), 'Loading events…');
-  const { data, error } = await supabaseClient.from('events').select('id,title,event_date,end_date,event_url,twitch_url,discord_url').order('event_date', { ascending: true });
+  setMessage($('#archive-status'), 'Loading archive…');
+  const { data, error } = await supabaseClient
+    .from('events')
+    .select('id,title,event_date,end_date,event_url,twitch_url,discord_url,youtube_url,is_archived')
+    .order('event_date', { ascending: true });
   if (error) {
     console.error('Could not load events:', error.message);
     setMessage($('#events-status'), 'Could not load events.', 'error');
-    $('#events-list').innerHTML = '<div class="empty-events">The calendar is temporarily unavailable.</div>'; return;
+    setMessage($('#archive-status'), 'Could not load archive.', 'error');
+    $('#events-list').innerHTML = '<div class="empty-events">The calendar is temporarily unavailable.</div>';
+    $('#archive-list').innerHTML = '<div class="empty-events">The archive is temporarily unavailable.</div>';
+    return;
   }
-  setMessage($('#events-status'), data.length ? `${data.length} event${data.length === 1 ? '' : 's'} listed` : 'No upcoming events yet.');
-  renderEvents(data);
+  const upcoming = data.filter(item => !item.is_archived);
+  const archived = data.filter(item => item.is_archived).reverse();
+  setMessage($('#events-status'), `${upcoming.length} calendar event${upcoming.length === 1 ? '' : 's'}`);
+  setMessage($('#archive-status'), `${archived.length} archived event${archived.length === 1 ? '' : 's'}`);
+  renderEvents(upcoming);
+  renderArchive(archived);
 }
 $('#event-form').addEventListener('submit', async event => {
   event.preventDefault();
   if (!supabaseClient || !currentUser || currentRole !== 'admin') return;
   const form = event.currentTarget, values = new FormData(form);
   const title = String(values.get('title') || '').trim(), eventUrl = safeHttpUrl(String(values.get('event_url') || '').trim());
-  const twitchValue = String(values.get('twitch_url') || '').trim(), discordValue = String(values.get('discord_url') || '').trim();
-  const twitchUrl = twitchValue ? safeHttpUrl(twitchValue) : null, discordUrl = discordValue ? safeHttpUrl(discordValue) : null;
+  const twitchValue = String(values.get('twitch_url') || '').trim();
+  const twitchUrl = twitchValue ? safeHttpUrl(twitchValue) : null;
+  const discordValue = String(values.get('discord_url') || '').trim();
+  const discordUrl = discordValue ? safeHttpUrl(discordValue) : null;
   const startDate = String(values.get('event_date') || ''), endDate = String(values.get('end_date') || '');
   if (!title) { setMessage($('#event-form-status'), 'Enter an event name.', 'error'); return; }
   if (!eventUrl) { setMessage($('#event-form-status'), 'Enter a valid http:// or https:// event details link.', 'error'); return; }
-  if ((twitchValue && !twitchUrl) || (discordValue && !discordUrl)) { setMessage($('#event-form-status'), 'Twitch and Discord links must be valid http:// or https:// URLs.', 'error'); return; }
+  if (twitchValue && !twitchUrl) { setMessage($('#event-form-status'), 'The Twitch link must be a valid http:// or https:// URL.', 'error'); return; }
+  if (discordValue && !discordUrl) { setMessage($('#event-form-status'), 'The Discord link must be a valid http:// or https:// URL.', 'error'); return; }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) { setMessage($('#event-form-status'), 'Choose a valid start date and end date.', 'error'); return; }
   if (endDate < startDate) { setMessage($('#event-form-status'), 'The end date must be on or after the start date.', 'error'); return; }
   const button = form.querySelector('button[type="submit"]'); button.disabled = true; setMessage($('#event-form-status'), 'Publishing event…');
   try {
-    const { error } = await supabaseClient.from('events').insert({ title, event_date: `${startDate}T12:00:00.000Z`, end_date: endDate, event_url: eventUrl, twitch_url: twitchUrl, discord_url: discordUrl, created_by: currentUser.id });
+    const { error } = await supabaseClient.from('events').insert({ title, event_date: `${startDate}T12:00:00.000Z`, end_date: endDate, event_url: eventUrl, twitch_url: twitchUrl, discord_url: discordUrl, is_archived: false, created_by: currentUser.id });
     if (error) throw error;
     form.reset(); setMessage($('#event-form-status'), 'Event published!', 'success'); await loadEvents();
   } catch (error) { console.error('Could not publish event:', error.message); setMessage($('#event-form-status'), 'Could not publish. Check admin permissions.', 'error'); }
   finally { button.disabled = false; }
 });
+
+$('#archive-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!supabaseClient || !currentUser || currentRole !== 'admin') return;
+  const form = event.currentTarget, values = new FormData(form);
+  const title = String(values.get('title') || '').trim();
+  const eventUrl = safeHttpUrl(String(values.get('event_url') || '').trim());
+  const youtubeValue = String(values.get('youtube_url') || '').trim();
+  const youtubeUrl = youtubeValue ? safeHttpUrl(youtubeValue) : null;
+  const startDate = String(values.get('event_date') || ''), endDate = String(values.get('end_date') || '');
+  if (!title) { setMessage($('#archive-form-status'), 'Enter an event name.', 'error'); return; }
+  if (!eventUrl) { setMessage($('#archive-form-status'), 'Enter a valid http:// or https:// event details link.', 'error'); return; }
+  if (youtubeValue && !youtubeUrl) { setMessage($('#archive-form-status'), 'The YouTube link must be a valid http:// or https:// URL.', 'error'); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) { setMessage($('#archive-form-status'), 'Choose a valid start date and end date.', 'error'); return; }
+  if (endDate < startDate) { setMessage($('#archive-form-status'), 'The end date must be on or after the start date.', 'error'); return; }
+  const button = form.querySelector('button[type="submit"]'); button.disabled = true; setMessage($('#archive-form-status'), 'Adding archived event…');
+  try {
+    const { error } = await supabaseClient.from('events').insert({ title, event_date: `${startDate}T12:00:00.000Z`, end_date: endDate, event_url: eventUrl, youtube_url: youtubeUrl, is_archived: true, created_by: currentUser.id });
+    if (error) throw error;
+    form.reset(); setMessage($('#archive-form-status'), 'Event added to archive!', 'success'); await loadEvents();
+  } catch (error) { console.error('Could not add archived event:', error.message); setMessage($('#archive-form-status'), 'Could not add event. Check admin permissions and database policies.', 'error'); }
+  finally { button.disabled = false; }
+});
+
 async function initialize() {
   if (!supabaseClient) { showConfigurationWarning(); renderAccount(null); return; }
   const { data: { session } } = await supabaseClient.auth.getSession();
