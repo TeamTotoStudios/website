@@ -192,8 +192,8 @@ async function loadEvents() {
   }
   const upcoming = data.filter(item => !item.is_archived);
   const archived = data.filter(item => item.is_archived).reverse();
-  setMessage($('#events-status'), `${upcoming.length} event${upcoming.length === 1 ? '' : 's'}`);
-  setMessage($('#archive-status'), `${archived.length} event${archived.length === 1 ? '' : 's'}`);
+  setMessage($('#events-status'), `${upcoming.length} event${upcoming.length === 1 ? '' : 's'} listed`);
+  setMessage($('#archive-status'), `${archived.length} event${archived.length === 1 ? '' : 's'} listed`);
   renderEvents(upcoming);
   renderArchive(archived);
 }
