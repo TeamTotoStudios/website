@@ -441,6 +441,10 @@ h2 {
     grid-template-columns: repeat(3,minmax(0,1fr))
 }
 
+.archive-links-row {
+    grid-template-columns: repeat(2,minmax(0,1fr))
+}
+
 .event-form label,.auth-form label {
     display: grid;
     gap: 7px;
