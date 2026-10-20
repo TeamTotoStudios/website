@@ -75,7 +75,7 @@ button,a {
 
 .logo img {
     display: block;
-    width: 150px;
+    width: 75px;
     height: 45px;
     object-fit: contain
 }
@@ -239,7 +239,7 @@ h2 {
 .event-card {
     min-width: 0;
     display: grid;
-    grid-template-columns: minmax(190px,.8fr) minmax(180px,1fr) auto;
+    grid-template-columns: minmax(250px,.8fr) minmax(240px,1fr) auto;
     align-items: center;
     gap: 18px;
     padding: 20px 22px;
@@ -269,7 +269,7 @@ h2 {
 
 .archive-card {
     min-width: 0;
-    min-height: 230px;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
