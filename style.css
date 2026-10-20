@@ -256,7 +256,7 @@ h2 {
 .archive-list {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 500px;
+    grid-auto-columns: 400px;
     grid-template-rows: 1fr;
     gap: 18px;
     overflow-x: auto;
