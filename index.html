@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TeamToto Studios</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,156 +14,38 @@
 <body>
   <header class="site-header">
     <nav class="navbar container" aria-label="Main navigation">
-      <div class="logo" aria-label="TeamToto Studios">
-        <img src="logo.png" alt="TeamToto Studios logo">
-      </div>
+      <a class="logo" href="#home" aria-label="TeamToto Studios home"><img src="logo.png" alt="TeamToto Studios logo"></a>
       <button class="menu-toggle" id="menu-toggle" aria-label="Open navigation" aria-expanded="false">☰</button>
-      <div class="nav-links" id="nav-links">
-        <a href="#calendar">Calendar</a>
-        <a href="#projects">Projects</a>
-        <a href="#about">About</a>
-        <a href="#account" class="nav-account">Account</a>
-      </div>
+      <div class="nav-links" id="nav-links"><a href="#calendar">Calendar</a><a href="#projects">Projects</a><a href="#about">About</a><a href="#account" class="nav-account">Account</a></div>
     </nav>
   </header>
-
   <main>
-    <section class="hero" id="home">
-      <div class="container hero-content">
-        <p class="eyebrow">TEAMTOTO STUDIOS</p>
-        <h1>THIS IS<br><span>ROCKET LEAGUE.</span></h1>
-        <div class="hero-actions">
-        </div>
+    <section class="hero" id="home"><div class="container hero-content"><p class="eyebrow">TEAMTOTO STUDIOS</p><h1>THIS IS<br><span>ROCKET LEAGUE.</span></h1></div></section>
+    <section class="section calendar-section" id="calendar"><div class="container">
+      <div class="section-heading"><div><p class="eyebrow">UPCOMING EVENTS</p><h2>Event Calendar</h2></div></div>
+      <div id="events-status" class="status-message" role="status">Loading events…</div><div id="events-list" class="events-list"></div>
+      <div id="admin-event-panel" class="admin-panel hidden">
+        <div class="admin-panel-heading"><div><p class="eyebrow">ADMIN TOOLS</p><h3>Add an event</h3></div><span class="admin-badge">ADMIN</span></div>
+        <form id="event-form" class="event-form">
+          <div class="event-form-row event-main-row"><label>Event name<input name="title" type="text" required maxlength="100"></label></div>
+          <div class="event-form-row event-date-row"><label>Start date<input name="event_date" type="date" required></label><label>End date<input name="end_date" type="date" required></label></div>
+          <div class="event-form-row event-links-row"><label>Details link<input name="event_url" type="url" required></label><label>Twitch link (optional)<input name="twitch_url" type="url"></label><label>Discord link (optional)<input name="discord_url" type="url"></label></div>
+          <button class="button button-primary" type="submit">Publish event</button><p id="event-form-status" class="form-message" role="status"></p>
+        </form>
       </div>
-    </section>
-
-    <section class="section calendar-section" id="calendar">
-      <div class="container">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">UPCOMING EVENTS</p>
-            <h2>Event Calendar</h2>
-          </div>
+    </div></section>
+    <section class="section projects-section" id="projects"><div class="container"><div class="section-heading"><div><p class="eyebrow">PREVIOUS EVENTS</p><h2>Event Archive</h2></div></div><p class="coming-soon">Coming soon.</p></div></section>
+    <section class="section about-section" id="about"><div class="container about-content"><p class="eyebrow">ABOUT US</p><h2>Creating,<br><span>exploring,</span><br>and more.</h2><p>Welcome to TeamToto Studios.<br>We are a tournament organizer based on Rocket League that was founded by TotoDu2.<br>High quality tournaments and top-notch broadcasts are part of our standards.<br>Get in touch with us at teamtoto.studios@gmail.com anytime.</p></div></section>
+    <section class="section account-section" id="account"><div class="container account-layout">
+      <div class="account-copy"><p class="eyebrow">ACCOUNT HUB</p><h2>Sign In</h2><p>Create an account or log in to access your account.</p></div>
+      <div class="account-card">
+        <div id="account-signed-out"><div class="auth-tabs" role="tablist" aria-label="Account actions"><button type="button" class="auth-tab active" id="signup-tab" role="tab" aria-selected="true">Create account</button><button type="button" class="auth-tab" id="login-tab" role="tab" aria-selected="false">Log in</button></div>
+          <form id="auth-form" class="auth-form"><label>Email address<input type="email" name="email" autocomplete="email" required></label><label>Password<input type="password" name="password" autocomplete="new-password" minlength="8" required></label><button id="auth-submit" class="button button-primary full-width" type="submit">Create account</button><p id="auth-status" class="form-message" role="status"></p></form>
         </div>
-        <div id="events-status" class="status-message" role="status">Loading events…</div>
-        <div id="events-list" class="events-list"></div>
-        <div id="admin-event-panel" class="admin-panel hidden">
-          <div class="admin-panel-heading">
-            <div>
-              <p class="eyebrow">ADMIN TOOLS</p>
-              <h3>Add an event</h3>
-            </div>
-            <span class="admin-badge">ADMIN</span>
-          </div>
-         <form id="event-form" class="event-form">
-
-  <!-- Event name -->
-  <div class="event-form-row event-main-row">
-    <label>
-      Event name
-      <input name="title" type="text" required maxlength="100">
-    </label>
-  </div>
-
-  <!-- Start and end dates -->
-  <div class="event-form-row event-date-row">
-    <label>
-      Start date
-      <input name="event_date" type="date" required>
-    </label>
-
-    <label>
-      End date
-      <input name="end_date" type="date" required>
-    </label>
-  </div>
-
-  <!-- Event links -->
-  <div class="event-form-row event-links-row">
-    <label>
-      Details link
-      <input name="event_url" type="url" required>
-    </label>
-  </div>
-
-  <div class="event-form-row other-links-row">
-    <label>
-      Twitch link (optional)
-      <input name="twitch_url" type="url">
-    </label>
-
-    <label>
-      Discord link (optional)
-      <input name="discord_url" type="url">
-    </label>
-  </div>
-
-  <!-- Submit button and status -->
-  <button class="button button-primary" type="submit">Publish event</button>
-  <p id="event-form-status" class="form-message" role="status"></p>
-
-</form>
-        </div>
+        <div id="account-signed-in" class="hidden"><p class="eyebrow">YOU'RE SIGNED IN</p><h3 id="account-email">Account</h3><p id="account-role" class="role-label">Member account</p><button id="logout-button" class="button button-secondary full-width" type="button">Log out</button><p id="logout-status" class="form-message" role="status"></p></div>
       </div>
-    </section>
-
-    <section class="section projects-section" id="projects">
-      <div class="container">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">PREVIOUS EVENTS</p>
-            <h2>Event Archive</h2>
-          </div>
-        </div>
-        <p class="coming-soon">Coming soon.</p>
-      </div>
-    </section>
-
-    <section class="section about-section" id="about">
-      <div class="container about-content">
-        <p class="eyebrow">ABOUT US</p>
-        <h2>Creating,<br><span>exploring,</span><br>and more.</h2>
-        <p>Welcome to TeamToto Studios.<br>We are a tournament organizer based on Rocket League that was founded by TotoDu2.<br>High quality tournaments and top-notch broadcasts are part of our standards.<br>Get in touch with us at teamtoto.studios@gmail.com anytime.</p>
-      </div>
-    </section>
-
-    <section class="section account-section" id="account">
-      <div class="container account-layout">
-        <div class="account-copy">
-          <p class="eyebrow">ACCOUNT HUB</p>
-          <h2>Sign In</h2>
-          <p>Create an account or log in to access your account.</p>
-        </div>
-        <div class="account-card">
-          <div id="account-signed-out">
-            <div class="auth-tabs" role="tablist" aria-label="Account actions">
-              <button type="button" class="auth-tab active" id="signup-tab" role="tab" aria-selected="true">Create account</button>
-              <button type="button" class="auth-tab" id="login-tab" role="tab" aria-selected="false">Log in</button>
-            </div>
-            <form id="auth-form" class="auth-form">
-              <label>Email address<input type="email" name="email" autocomplete="email" required></label>
-              <label>Password<input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
-              <button id="auth-submit" class="button button-primary full-width" type="submit">Create account</button>
-              <p id="auth-status" class="form-message" role="status"></p>
-            </form>
-          </div>
-          <div id="account-signed-in" class="hidden">
-            <p class="eyebrow">YOU'RE SIGNED IN</p>
-            <h3 id="account-email">Account</h3>
-            <p id="account-role" class="role-label">Member account</p>
-            <button id="logout-button" class="button button-secondary full-width" type="button">Log out</button>
-            <p id="logout-status" class="form-message" role="status"></p>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div></section>
   </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <p>TeamToto Studios © <span id="year"></span></p>
-      <a href="#home">Back to top ↑</a>
-    </div>
-  </footer>
+  <footer class="site-footer"><div class="container footer-inner"><p>TeamToto Studios © <span id="year"></span></p><a href="#home">Back to top ↑</a></div></footer>
 </body>
 </html>
