@@ -29,13 +29,26 @@
         <form id="event-form" class="event-form">
           <div class="event-form-row event-main-row"><label>Event name<input name="title" type="text" required maxlength="100"></label></div>
           <div class="event-form-row event-date-row"><label>Start date<input name="event_date" type="date" required></label><label>End date<input name="end_date" type="date" required></label></div>
-          <div class="event-form-row event-links-row"><label>Details link<input name="event_url" type="url" required></label><label>Twitch link (optional)<input name="twitch_url" type="url"></label><label>Discord link (optional)<input name="discord_url" type="url"></label></div>
+          <div class="event-form-row event-links-row"><label>Details link<input name="event_url" type="url" required></label><label>Twitch link (optional)<input name="twitch_url" type="url" placeholder="https://www.twitch.tv/..."></label><label>Discord link (optional)<input name="discord_url" type="url" placeholder="https://discord.gg/..."></label></div>
           <button class="button button-primary" type="submit">Publish event</button><p id="event-form-status" class="form-message" role="status"></p>
         </form>
       </div>
     </div></section>
-    <section class="section archive-section" id="archive"><div class="container"><div class="section-heading"><div><p class="eyebrow">PREVIOUS EVENTS</p><h2>Event Archive</h2></div></div><p class="coming-soon">Coming soon.</p></div></section>
-    <section class="section about-section" id="about"><div class="container about-content"><p class="eyebrow">ABOUT US</p><h2>Creating,<br><span>exploring,</span><br>and more.</h2><p>Welcome to TeamToto Studios.<br>We are a tournament organizer based on Rocket League that was founded by TotoDu2.<br>High quality tournaments and top-notch broadcasts are part of our standards.</p><a class="button button-primary" href="mailto:teamtoto.studios@gmail.com">Contact us</a></div></section>
+    <section class="section archive-section" id="archive"><div class="container">
+      <div class="section-heading"><div><p class="eyebrow">PREVIOUS EVENTS</p><h2>Event Archive</h2></div></div>
+      <div id="archive-status" class="status-message" role="status">Loading archive…</div>
+      <div id="archive-list" class="archive-list"></div>
+      <div id="admin-archive-panel" class="admin-panel hidden">
+        <div class="admin-panel-heading"><div><p class="eyebrow">ADMIN TOOLS</p><h3>Add an archived event</h3></div><span class="admin-badge">ADMIN</span></div>
+        <form id="archive-form" class="event-form">
+          <div class="event-form-row event-main-row"><label>Event name<input name="title" type="text" required maxlength="100"></label></div>
+          <div class="event-form-row event-date-row"><label>Start date<input name="event_date" type="date" required></label><label>End date<input name="end_date" type="date" required></label></div>
+          <div class="event-form-row event-links-row"><label>Details link<input name="event_url" type="url" required></label><label>YouTube link (optional)<input name="youtube_url" type="url" placeholder="https://www.youtube.com/..."></label></div>
+          <button class="button button-primary" type="submit">Add to archive</button><p id="archive-form-status" class="form-message" role="status"></p>
+        </form>
+      </div>
+    </div></section>
+    <section class="section about-section" id="about"><div class="container about-content"><p class="eyebrow">ABOUT US</p><h2>Creating,<br><span>exploring,</span><br>and more.</h2><p>Welcome to TeamToto Studios.<br>We are a tournament organizer based on Rocket League that was founded by TotoDu2.<br>High quality tournaments and top-notch broadcasts are part of our standards.<br>Get in touch with us at teamtoto.studios@gmail.com anytime.</p><a class="button button-primary" href="mailto:teamtoto.studios@gmail.com">Contact us</a></div></section>
     <section class="section account-section" id="account"><div class="container account-layout">
       <div class="account-copy"><p class="eyebrow">ACCOUNT HUB</p><h2>Sign In</h2><p>Create an account or log in to access your account.</p></div>
       <div class="account-card">
