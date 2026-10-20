@@ -20,7 +20,7 @@ function setMessage(element, message, type = '') {
   if (type) element.classList.add(type);
 }
 function showConfigurationWarning() {
-  setMessage($('#events-status'), 'The event calendar and accounts are not connected yet.');
+  setMessage($('#events-status'), 'The event calendar is not connected yet.');
   $('#events-list').innerHTML = '<div class="empty-events">Events will appear here once the website database is configured.</div>';
   setMessage($('#archive-status'), 'The event archive is not connected yet.');
   $('#archive-list').innerHTML = '<div class="empty-events">Archived events will appear here once the website database is configured.</div>';
@@ -156,8 +156,8 @@ function renderArchive(events) {
     addEventLink(links, 'Details', item.event_url);
     addEventLink(links, 'YouTube', item.youtube_url);
     if (currentRole === 'admin') {
-      const button = document.createElement('button'); button.className = 'event-delete-button'; button.type = 'button'; button.textContent = 'Delete';
-      button.setAttribute('aria-label', `Delete archived event: ${item.title}`);
+      const button = document.createElement('button'); button.className = 'event-delete-button'; button.type = 'button'; button.textContent = 'Delete event';
+      button.setAttribute('aria-label', `Delete event: ${item.title}`);
       button.addEventListener('click', () => deleteEvent(item.id, item.title, button)); links.append(button);
     }
     card.append(date, title, links); list.append(card);
@@ -169,7 +169,7 @@ async function deleteEvent(id, title, button) {
   const { error } = await supabaseClient.from('events').delete().eq('id', id);
   if (error) {
     console.error('Could not delete event:', error.message);
-    setMessage($('#events-status'), 'Could not delete event. Check admin permissions and database policies.', 'error');
+    setMessage($('#events-status'), 'Could not delete event. Check admin permissions.', 'error');
     button.disabled = false; button.textContent = 'Delete event'; return;
   }
   await loadEvents();
@@ -177,7 +177,7 @@ async function deleteEvent(id, title, button) {
 async function loadEvents() {
   if (!supabaseClient) return;
   setMessage($('#events-status'), 'Loading events…');
-  setMessage($('#archive-status'), 'Loading archive…');
+  setMessage($('#archive-status'), 'Loading events…');
   const { data, error } = await supabaseClient
     .from('events')
     .select('id,title,event_date,end_date,event_url,twitch_url,discord_url,youtube_url,is_archived')
@@ -185,15 +185,15 @@ async function loadEvents() {
   if (error) {
     console.error('Could not load events:', error.message);
     setMessage($('#events-status'), 'Could not load events.', 'error');
-    setMessage($('#archive-status'), 'Could not load archive.', 'error');
+    setMessage($('#archive-status'), 'Could not load events.', 'error');
     $('#events-list').innerHTML = '<div class="empty-events">The calendar is temporarily unavailable.</div>';
     $('#archive-list').innerHTML = '<div class="empty-events">The archive is temporarily unavailable.</div>';
     return;
   }
   const upcoming = data.filter(item => !item.is_archived);
   const archived = data.filter(item => item.is_archived).reverse();
-  setMessage($('#events-status'), `${upcoming.length} calendar event${upcoming.length === 1 ? '' : 's'}`);
-  setMessage($('#archive-status'), `${archived.length} archived event${archived.length === 1 ? '' : 's'}`);
+  setMessage($('#events-status'), `${upcoming.length} event${upcoming.length === 1 ? '' : 's'}`);
+  setMessage($('#archive-status'), `${archived.length} event${archived.length === 1 ? '' : 's'}`);
   renderEvents(upcoming);
   renderArchive(archived);
 }
@@ -241,7 +241,7 @@ $('#archive-form').addEventListener('submit', async event => {
     const { error } = await supabaseClient.from('events').insert({ title, event_date: `${startDate}T12:00:00.000Z`, end_date: endDate, event_url: eventUrl, youtube_url: youtubeUrl, is_archived: true, created_by: currentUser.id });
     if (error) throw error;
     form.reset(); setMessage($('#archive-form-status'), 'Event added to archive!', 'success'); await loadEvents();
-  } catch (error) { console.error('Could not add archived event:', error.message); setMessage($('#archive-form-status'), 'Could not add event. Check admin permissions and database policies.', 'error'); }
+  } catch (error) { console.error('Could not publish event:', error.message); setMessage($('#archive-form-status'), 'Could not publish. Check admin permissions.', 'error'); }
   finally { button.disabled = false; }
 });
 
