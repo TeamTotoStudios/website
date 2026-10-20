@@ -256,7 +256,7 @@ h2 {
 .archive-list {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 300px;
+    grid-auto-columns: 500px;
     grid-template-rows: 1fr;
     gap: 18px;
     overflow-x: auto;
@@ -269,7 +269,7 @@ h2 {
 
 .archive-card {
     min-width: 0;
-    min-height: 200px;
+    min-height: 150px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
